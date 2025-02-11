@@ -1,10 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { hash } from 'bcrypt'
 
 import { CreateUserDto } from './dto/create-user.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { User } from './schemas/user.schema';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
 export class UsersService {
@@ -20,6 +21,15 @@ export class UsersService {
   }
 
   async findOne(email: string) {
-    return this.userModel.findOne<User>({ email });
+    return await this.userModel.findOne<User>({ email });
+  }
+
+  async updatePreferences({ email, preferences }: UpdateUserDto) {
+    const updateUser = await this.userModel
+      .findOneAndUpdate<User>({ email }, { preferences }, { new: true });
+
+    if (!updateUser) throw new UnauthorizedException();
+
+    return updateUser;
   }
 }

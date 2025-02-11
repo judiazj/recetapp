@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
+import { Preferences } from '../enums/preferences.enum';
 
 
 export type UserDocument = HydratedDocument<User>;
@@ -17,8 +18,10 @@ export class User {
   password: string;
 
   @Prop({ default: new Date() })
-  fecha_creacion?: Date;
+  created_at?: Date;
 
+  @Prop({ type: [String], enum: Preferences, default: [] })
+  preferences?: string[];
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
