@@ -18,4 +18,8 @@ export class UsersService {
     const newUser = await this.userModel.create<User>(createUserDto)
     return newUser
   }
+
+  async findOne(email: string) {
+    return this.userModel.findOne<User>({ email });
+  }
 }
