@@ -5,6 +5,7 @@ import { envs } from './config';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { RecetasModule } from './recetas/recetas.module';
+import { MailModule } from './mail/mail.module';
 
 @Module({
   imports: [
@@ -12,6 +13,7 @@ import { RecetasModule } from './recetas/recetas.module';
     UsersModule,
     AuthModule,
     RecetasModule,
+    MailModule,
   ],
   controllers: [],
   providers: [],

@@ -32,4 +32,14 @@ export class UsersService {
 
     return updateUser;
   }
+
+  async updatePassword(email: string, password: string) {
+    const newPassword = await hash(password, 10);
+    const updateUser = await this.userModel
+      .findOneAndUpdate<User>({ email }, { password: newPassword }, { new: true });
+
+    if (!updateUser) throw new UnauthorizedException();
+
+    return updateUser;
+  }
 }

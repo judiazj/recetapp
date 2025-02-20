@@ -1,11 +1,12 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { compare } from 'bcrypt'
 
 
-import { CreateUserDto } from 'src/users/dto/create-user.dto';
-import { UsersService } from 'src/users/users.service';
+import { CreateUserDto } from '../users/dto/create-user.dto';
+import { UsersService } from '../users/users.service';
 import { LoginUserDto } from './dto/login-user.dto';
+import { MailService } from '../mail/mail.service';
 
 @Injectable()
 export class AuthService {
@@ -13,6 +14,7 @@ export class AuthService {
   constructor(
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
+    private readonly mailService: MailService,
   ) { }
 
   async create(createUserDto: CreateUserDto) {
@@ -32,6 +34,22 @@ export class AuthService {
 
     return {
       access_token: await this.jwtService.signAsync(payload),
+    };
+  }
+
+  async forgotPassword(email: string) {
+    const user = await this.usersService.findOne(email);
+
+    if (!user) throw new UnauthorizedException('Don\'t have permission');
+
+    const newPassword = crypto.randomUUID();
+
+    await this.mailService.sendPasswordResetEmail(email, newPassword);
+
+    await this.usersService.updatePassword(email, newPassword);
+
+    return {
+      message: 'La contraseña ha sido cambiada, por favor revisa tu correo',
     };
   }
 }
