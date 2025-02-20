@@ -34,6 +34,7 @@ export class UsersService {
   }
 
   async updatePassword(email: string, password: string) {
+    if (!password) throw new UnauthorizedException('Password is required');
     const newPassword = await hash(password, 10);
     const updateUser = await this.userModel
       .findOneAndUpdate<User>({ email }, { password: newPassword }, { new: true });
