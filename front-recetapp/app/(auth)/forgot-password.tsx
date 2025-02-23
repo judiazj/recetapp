@@ -2,13 +2,11 @@ import React, { useState } from 'react';
 import {
   View,
   Text,
-  TextInput,
-  TouchableOpacity,
-  StyleSheet,
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
 import { Link } from 'expo-router';
+import { Button, FoodLogo, InputPassword, InputText } from '@/components';
 
 export default function ForgotPasswordScreen() {
   const [email, setEmail] = useState('');
@@ -28,9 +26,9 @@ export default function ForgotPasswordScreen() {
       //   },
       //   body: JSON.stringify({ email }),
       // });
-      
+
       // const data = await response.json();
-      
+
       // if (response.ok) {
       //   setSuccess(true);
       // } else {
@@ -44,102 +42,36 @@ export default function ForgotPasswordScreen() {
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      style={styles.container}
+      className="flex-1 justify-between bg-cyan-500"
     >
-      <View style={styles.content}>
-        <Text style={styles.title}>Reset Password</Text>
-        <Text style={styles.subtitle}>
-          Enter your email address and we'll send you instructions to reset your password
-        </Text>
+      <View>
+        <FoodLogo size={150} mt="mt-16" />
+        {error ? <Text >{error}</Text> : null}
 
-        {error ? <Text style={styles.error}>{error}</Text> : null}
-        {success ? (
-          <Text style={styles.success}>
-            Password reset instructions have been sent to your email
-          </Text>
-        ) : null}
+        <Text className="text-center text-4xl text-cyan-900 font-bold">PASSWORD RESET</Text>
+      </View>
 
-        <TextInput
-          style={styles.input}
-          placeholder="Email"
+      <View className="mx-auto w-5/6">
+        <Text className="text-white mb-2 text-3xl font-bold">Email address</Text>
+        <InputText
+          breakWords
+          placeholder="Enter the email address associated with your account"
           value={email}
           onChangeText={setEmail}
           keyboardType="email-address"
           autoCapitalize="none"
           autoComplete="email"
         />
-
-        <TouchableOpacity
-          style={styles.button}
-          onPress={handleResetPassword}
-        >
-          <Text style={styles.buttonText}>Send Reset Link</Text>
-        </TouchableOpacity>
-
-        <Link href="/login" style={styles.link}>
-          Back to Sign In
-        </Link>
       </View>
+
+      <View className="mb-5">
+        <Button
+          mb="mb-2"
+          text="Send"
+          onPress={() => { }}
+        />
+      </View>
+
     </KeyboardAvoidingView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-  },
-  content: {
-    flex: 1,
-    padding: 24,
-    justifyContent: 'center',
-  },
-  title: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    marginBottom: 8,
-    textAlign: 'center',
-  },
-  subtitle: {
-    fontSize: 16,
-    color: '#666',
-    marginBottom: 32,
-    textAlign: 'center',
-    paddingHorizontal: 24,
-  },
-  input: {
-    backgroundColor: '#f5f5f5',
-    padding: 16,
-    borderRadius: 12,
-    marginBottom: 16,
-    fontSize: 16,
-  },
-  button: {
-    backgroundColor: '#007AFF',
-    padding: 16,
-    borderRadius: 12,
-    alignItems: 'center',
-    marginTop: 8,
-  },
-  buttonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  error: {
-    color: '#ff3b30',
-    marginBottom: 16,
-    textAlign: 'center',
-  },
-  success: {
-    color: '#34c759',
-    marginBottom: 16,
-    textAlign: 'center',
-  },
-  link: {
-    color: '#007AFF',
-    textAlign: 'center',
-    marginTop: 16,
-    fontSize: 16,
-  },
-});

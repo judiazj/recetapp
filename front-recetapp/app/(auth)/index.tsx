@@ -10,7 +10,7 @@ export default function LoginScreen() {
       <View className="w-72 h-1 mx-auto my-2 bg-white border-0"></View>
       <Text className="text-center text-3xl text-cyan-900 mb-32">SAZÓN SALUDABLE</Text>
       <Text className="text-center text-2xl text-white mb-10 font-semibold">La cocina es un viaje donde cada receta es una nueva aventura por explorar.</Text>
-      <Link href={"/login"} asChild className="flex justify-center mb-3">
+      <Link href={"/login"} asChild className="flex justify-center mb-5">
         <TouchableOpacity className="bg-cyan-900 py-4 px-24 rounded-2xl flex justify-center items-center mx-auto">
           <Text className="text-white items-center text-2xl">Login</Text>
         </TouchableOpacity>

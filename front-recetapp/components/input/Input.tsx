@@ -12,6 +12,7 @@ interface Props {
   secureTextEntry?: boolean;
   autoComplete?: AutoCompleteOptions;
   autoCapitalize?: AutoCapitalizeOptions;
+  breakWords?: boolean;
 }
 
 export const InputText = (
@@ -20,7 +21,8 @@ export const InputText = (
     onChangeText,
     keyboardType,
     autoCapitalize,
-    autoComplete
+    autoComplete,
+    breakWords,
   }: Props) => {
   return (
     <TextInput
@@ -30,7 +32,7 @@ export const InputText = (
       keyboardType={keyboardType}
       autoCapitalize={autoCapitalize}
       autoComplete={autoComplete}
-      className="block p-2 w-auto bg-gray-50 border border-gray-300 font-bold text-gray-900 text-3xl rounded-md focus:ring-blue-500 focus:border-blue-500"
+      className={`block p-2 w-auto bg-gray-50 border border-gray-300 font-bold text-gray-900 text-3xl rounded-md focus:ring-blue-500 focus:border-blue-500 ${breakWords ? 'break-words' : ''}`}
     />
   )
 }
