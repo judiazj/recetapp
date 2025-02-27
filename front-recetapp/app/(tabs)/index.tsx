@@ -1,5 +1,6 @@
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { Link } from 'expo-router';
 
 export default function MainScreen() {
   const featuredRecipes = [
@@ -32,22 +33,24 @@ export default function MainScreen() {
         <Text style={styles.sectionTitle}>Featured Recipes</Text>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.recipesScroll}>
           {featuredRecipes.map((recipe) => (
-            <TouchableOpacity key={recipe.id} style={styles.recipeCard}>
-              <Image source={{ uri: recipe.image }} style={styles.recipeImage} />
-              <View style={styles.recipeInfo}>
-                <Text style={styles.recipeTitle}>{recipe.title}</Text>
-                <View style={styles.recipeMetaInfo}>
-                  <View style={styles.metaItem}>
-                    <Ionicons name="time-outline" size={16} color="#666" />
-                    <Text style={styles.metaText}>{recipe.time}</Text>
-                  </View>
-                  <View style={styles.metaItem}>
-                    <Ionicons name="speedometer-outline" size={16} color="#666" />
-                    <Text style={styles.metaText}>{recipe.difficulty}</Text>
+            <Link key={recipe.id} href={`/recipe/${recipe.id}`} asChild>
+              <TouchableOpacity style={styles.recipeCard}>
+                <Image source={{ uri: recipe.image }} style={styles.recipeImage} />
+                <View style={styles.recipeInfo}>
+                  <Text style={styles.recipeTitle}>{recipe.title}</Text>
+                  <View style={styles.recipeMetaInfo}>
+                    <View style={styles.metaItem}>
+                      <Ionicons name="time-outline" size={16} color="#666" />
+                      <Text style={styles.metaText}>{recipe.time}</Text>
+                    </View>
+                    <View style={styles.metaItem}>
+                      <Ionicons name="speedometer-outline" size={16} color="#666" />
+                      <Text style={styles.metaText}>{recipe.difficulty}</Text>
+                    </View>
                   </View>
                 </View>
-              </View>
-            </TouchableOpacity>
+              </TouchableOpacity>
+            </Link>
           ))}
         </ScrollView>
       </View>

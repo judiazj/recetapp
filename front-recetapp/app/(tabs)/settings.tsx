@@ -7,7 +7,7 @@ export default function SettingsScreen() {
     {
       title: 'Account',
       items: [
-        { icon: 'person-outline', label: 'Profile', type: 'link' },
+        { icon: 'person-outline', label: 'Profile', type: 'link', href: '/profile' },
         { icon: 'notifications-outline', label: 'Notifications', type: 'toggle' },
       ],
     },
@@ -29,21 +29,37 @@ export default function SettingsScreen() {
 
   return (
     <View style={styles.container}>
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>Settings</Text>
+      </View>
+      
       {settingsSections.map((section) => (
         <View key={section.title} style={styles.section}>
           <Text style={styles.sectionTitle}>{section.title}</Text>
           {section.items.map((item) => (
-            <TouchableOpacity key={item.label} style={styles.settingItem}>
-              <View style={styles.settingLeft}>
-                <Ionicons name={item.icon} size={24} color="#666" />
-                <Text style={styles.settingLabel}>{item.label}</Text>
-              </View>
-              {item.type === 'toggle' ? (
-                <Switch value={false} onValueChange={() => {}} />
-              ) : (
-                <Ionicons name="chevron-forward" size={24} color="#ccc" />
-              )}
-            </TouchableOpacity>
+            item.type === 'link' && item.href ? (
+              <Link key={item.label} href={item.href} asChild>
+                <TouchableOpacity style={styles.settingItem}>
+                  <View style={styles.settingLeft}>
+                    <Ionicons name={item.icon} size={24} color="#666" />
+                    <Text style={styles.settingLabel}>{item.label}</Text>
+                  </View>
+                  <Ionicons name="chevron-forward" size={24} color="#ccc" />
+                </TouchableOpacity>
+              </Link>
+            ) : (
+              <TouchableOpacity key={item.label} style={styles.settingItem}>
+                <View style={styles.settingLeft}>
+                  <Ionicons name={item.icon} size={24} color="#666" />
+                  <Text style={styles.settingLabel}>{item.label}</Text>
+                </View>
+                {item.type === 'toggle' ? (
+                  <Switch value={false} onValueChange={() => {}} />
+                ) : (
+                  <Ionicons name="chevron-forward" size={24} color="#ccc" />
+                )}
+              </TouchableOpacity>
+            )
           ))}
         </View>
       ))}
@@ -61,6 +77,18 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f8f8f8',
+  },
+  header: {
+    padding: 16,
+    paddingTop: 60,
+    backgroundColor: '#fff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f0',
+  },
+  headerTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#333',
   },
   section: {
     marginBottom: 24,

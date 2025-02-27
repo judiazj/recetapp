@@ -1,5 +1,6 @@
-import { View, Text, StyleSheet, FlatList } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { Link } from 'expo-router';
 
 export default function HistoryScreen() {
   const history = [
@@ -15,28 +16,46 @@ export default function HistoryScreen() {
       date: '2024-02-19',
       status: 'saved',
     },
+    {
+      id: '3',
+      title: 'Homemade Pizza',
+      date: '2024-02-18',
+      status: 'completed',
+    },
+    {
+      id: '4',
+      title: 'Chocolate Cake',
+      date: '2024-02-15',
+      status: 'saved',
+    },
   ];
 
   return (
     <View style={styles.container}>
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>Cooking History</Text>
+      </View>
+      
       <FlatList
         data={history}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
-          <View style={styles.historyItem}>
-            <View style={styles.iconContainer}>
-              <Ionicons
-                name={item.status === 'completed' ? 'checkmark-circle' : 'bookmark'}
-                size={24}
-                color="#FF6B6B"
-              />
-            </View>
-            <View style={styles.itemContent}>
-              <Text style={styles.itemTitle}>{item.title}</Text>
-              <Text style={styles.itemDate}>{item.date}</Text>
-            </View>
-            <Ionicons name="chevron-forward" size={24} color="#ccc" />
-          </View>
+          <Link href={`/recipe/${item.id}`} asChild>
+            <TouchableOpacity style={styles.historyItem}>
+              <View style={styles.iconContainer}>
+                <Ionicons
+                  name={item.status === 'completed' ? 'checkmark-circle' : 'bookmark'}
+                  size={24}
+                  color="#FF6B6B"
+                />
+              </View>
+              <View style={styles.itemContent}>
+                <Text style={styles.itemTitle}>{item.title}</Text>
+                <Text style={styles.itemDate}>{item.date}</Text>
+              </View>
+              <Ionicons name="chevron-forward" size={24} color="#ccc" />
+            </TouchableOpacity>
+          </Link>
         )}
         ItemSeparatorComponent={() => <View style={styles.separator} />}
       />
@@ -48,6 +67,18 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
+  },
+  header: {
+    padding: 16,
+    paddingTop: 60,
+    backgroundColor: '#fff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f0',
+  },
+  headerTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#333',
   },
   historyItem: {
     flexDirection: 'row',
