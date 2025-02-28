@@ -10,6 +10,7 @@ import { Link, router } from 'expo-router';
 import { Button, FoodLogo, InputPassword, InputText } from '@/components';
 import { axiosInstance } from '@/utils/axios/axiosInstance';
 import { AUTH_LOGIN } from '@/constants';
+import { invalidEmailMessage, validateEmail } from '@/utils/emailValidator';
 
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
@@ -19,6 +20,11 @@ export default function LoginScreen() {
   const handleLogin = async () => {
     if (!email || !password) {
       Alert.alert('Error', 'Por favor, completa todos los campos.');
+      return;
+    }
+
+    if (validateEmail(email) === false) {
+      Alert.alert('Error', invalidEmailMessage);
       return;
     }
 

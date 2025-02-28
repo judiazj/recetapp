@@ -4,46 +4,51 @@ import {
   Text,
   KeyboardAvoidingView,
   Platform,
+  Alert,
 } from 'react-native';
 import { Link, router } from 'expo-router';
 import { Button, FoodLogo, InputPassword, InputText } from '@/components';
+import { axiosInstance } from '@/utils/axios/axiosInstance';
+import { AUTH_REGISTER } from '@/constants';
+import { invalidEmailMessage, validateEmail } from '@/utils/emailValidator';
 
 export default function RegisterScreen() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const handleRegister = async () => {
-    try {
-      setError('');
+    if (!name || !email || !password) {
+      Alert.alert('Error', 'Por favor, completa todos los campos.');
+      return;
+    }
 
-      if (password !== confirmPassword) {
-        setError('Passwords do not match');
+    if (validateEmail(email) === false) {
+      Alert.alert('Error', invalidEmailMessage);
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const response = await axiosInstance.post(AUTH_REGISTER, {
+        name,
+        email,
+        password,
+      })
+
+
+      if (response.status !== 201) {
+        Alert.alert('Error', 'Ocurrió un error al intentar crear la cuenta.');
         return;
       }
 
-      // TODO: Replace with your registration endpoint
-      // const response = await fetch('YOUR_REGISTER_ENDPOINT', {
-      //   method: 'POST',
-      //   headers: {
-      //     'Content-Type': 'application/json',
-      //   },
-      //   body: JSON.stringify({ name, email, password }),
-      // });
-
-      // const data = await response.json();
-
-      // if (response.ok) {
-      //   // TODO: Store the token/user data
-      //   // await SecureStore.setItemAsync('userToken', data.token);
-      //   router.replace('/(tabs)');
-      // } else {
-      //   setError(data.message || 'Registration failed');
-      // }
-    } catch (err) {
-      setError('An error occurred. Please try again.');
+      router.replace('../login');
+    } catch (error) {
+      Alert.alert('Error', 'Ocurrió un error al intentar crear la cuenta.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -54,7 +59,6 @@ export default function RegisterScreen() {
     >
       <View>
         <FoodLogo size={150} mt="mt-16" />
-        {error ? <Text >{error}</Text> : null}
 
         <Text className="text-center text-4xl text-cyan-900 font-bold">CREATE ACCOUNT</Text>
       </View>
@@ -99,7 +103,8 @@ export default function RegisterScreen() {
         <Button
           mb="mb-2"
           text="Create"
-          onPress={() => { }}
+          loading={loading}
+          onPress={handleRegister}
         />
       </View>
 

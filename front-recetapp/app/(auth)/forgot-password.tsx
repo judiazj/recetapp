@@ -4,38 +4,43 @@ import {
   Text,
   KeyboardAvoidingView,
   Platform,
+  Alert,
 } from 'react-native';
-import { Link } from 'expo-router';
-import { Button, FoodLogo, InputPassword, InputText } from '@/components';
+import { Button, FoodLogo, InputText } from '@/components';
+import { invalidEmailMessage, validateEmail } from '@/utils/emailValidator';
+import { axiosInstance } from '@/utils/axios/axiosInstance';
+import { AUTH_FORGOT_PASSWORD } from '@/constants';
+import { router } from 'expo-router';
 
 export default function ForgotPasswordScreen() {
   const [email, setEmail] = useState('');
-  const [success, setSuccess] = useState(false);
-  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+
 
   const handleResetPassword = async () => {
+    if (validateEmail(email) === false) {
+      Alert.alert('Error', invalidEmailMessage);
+      return;
+    }
+
+    setLoading(true);
+
     try {
-      setError('');
-      setSuccess(false);
+      const response = await axiosInstance.post(AUTH_FORGOT_PASSWORD, {
+        email,
+      });
 
-      // TODO: Replace with your password reset endpoint
-      // const response = await fetch('YOUR_PASSWORD_RESET_ENDPOINT', {
-      //   method: 'POST',
-      //   headers: {
-      //     'Content-Type': 'application/json',
-      //   },
-      //   body: JSON.stringify({ email }),
-      // });
+      if (response.status !== 201) {
+        Alert.alert('Error', 'Ocurrió un error al intentar restablecer la contraseña.');
+        return;
+      }
 
-      // const data = await response.json();
-
-      // if (response.ok) {
-      //   setSuccess(true);
-      // } else {
-      //   setError(data.message || 'Password reset request failed');
-      // }
-    } catch (err) {
-      setError('An error occurred. Please try again.');
+      Alert.alert('Success', 'Se ha enviado un correo electrónico con instrucciones para restablecer la contraseña.');
+      router.replace('../login');
+    } catch (error) {
+      Alert.alert('Error', 'Ocurrió un error al intentar restablecer la contraseña.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -46,7 +51,6 @@ export default function ForgotPasswordScreen() {
     >
       <View>
         <FoodLogo size={150} mt="mt-16" />
-        {error ? <Text >{error}</Text> : null}
 
         <Text className="text-center text-4xl text-cyan-900 font-bold">PASSWORD RESET</Text>
       </View>
@@ -68,7 +72,8 @@ export default function ForgotPasswordScreen() {
         <Button
           mb="mb-2"
           text="Send"
-          onPress={() => { }}
+          loading={loading}
+          onPress={handleResetPassword}
         />
       </View>
 
