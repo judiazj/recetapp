@@ -9,6 +9,8 @@ interface EnvVars {
   MAIL_HOST: string;
   MAIL_USER: string;
   MAIL_PASSWORD: string;
+  ORIGIN_LOCAL: string;
+  ORIGIN_PROD: string;
 }
 
 const envsSchema = joi.object({
@@ -18,6 +20,8 @@ const envsSchema = joi.object({
   MAIL_HOST: joi.string().required(),
   MAIL_USER: joi.string().required(),
   MAIL_PASSWORD: joi.string().required(),
+  ORIGIN_PROD: joi.string().required(),
+  ORIGIN_LOCAL: joi.string(),
 })
   .unknown(true);
 
@@ -36,4 +40,6 @@ export const envs = {
   mailHost: envVars.MAIL_HOST,
   mailUser: envVars.MAIL_USER,
   mailPassword: envVars.MAIL_PASSWORD,
+  originLocal: envVars.ORIGIN_LOCAL || 'http://localhost:8081',
+  originProd: envVars.ORIGIN_PROD,
 }
