@@ -2,44 +2,56 @@ import React, { useState } from 'react';
 import {
   View,
   Text,
-  TextInput,
   KeyboardAvoidingView,
   Platform,
+  Alert,
 } from 'react-native';
 import { Link, router } from 'expo-router';
 import { Button, FoodLogo, InputPassword, InputText } from '@/components';
+import { axiosInstance } from '@/utils/axios/axiosInstance';
+import { AUTH_LOGIN } from '@/constants';
+import { invalidEmailMessage, validateEmail } from '@/utils/emailValidator';
 
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const handleLogin = async () => {
-    try {
-      setError('');
-
-      // TODO: Replace with your login endpoint
-      // const response = await fetch('YOUR_LOGIN_ENDPOINT', {
-      //   method: 'POST',
-      //   headers: {
-      //     'Content-Type': 'application/json',
-      //   },
-      //   body: JSON.stringify({ email, password }),
-      // });
-
-      // const data = await response.json();
-
-      // if (response.ok) {
-      //   // TODO: Store the token/user data
-      //   // await SecureStore.setItemAsync('userToken', data.token);
-      router.replace('/(tabs)');
-      // } else {
-      //   setError(data.message || 'Login failed');
-      // }
-    } catch (err) {
-      setError('An error occurred. Please try again.');
+    if (!email || !password) {
+      Alert.alert('Error', 'Por favor, completa todos los campos.');
+      return;
     }
-  };
+
+    if (validateEmail(email) === false) {
+      Alert.alert('Error', invalidEmailMessage);
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const response = await axiosInstance.post(AUTH_LOGIN, {
+        email,
+        password,
+      })
+
+
+      if (response.status !== 201) {
+        Alert.alert('Error', 'Credenciales incorrectas.');
+        return;
+      }
+
+      router.replace('../profile');
+
+      // TODO: Save token in AsyncStorage or SecureStore
+    } catch (error) {
+      Alert.alert('Error', 'Ocurrió un error al intentar iniciar sesión.');
+    } finally {
+      setLoading(false);
+    }
+  }
+
 
   return (
     <KeyboardAvoidingView
@@ -48,7 +60,6 @@ export default function LoginScreen() {
     >
       <View>
         <FoodLogo size={150} mt="mt-16" />
-        {error ? <Text >{error}</Text> : null}
 
         <Text className="text-center text-4xl text-cyan-900 font-bold">LOGIN</Text>
       </View>
@@ -81,7 +92,8 @@ export default function LoginScreen() {
         <Button
           mb="mb-2"
           text="Login"
-          onPress={() => { }}
+          loading={loading}
+          onPress={handleLogin}
         />
 
         <Link href="/forgot-password" className="mx-auto">
