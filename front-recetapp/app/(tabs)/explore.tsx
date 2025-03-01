@@ -1,42 +1,35 @@
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, TextInput } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, TextInput, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Link } from 'expo-router';
+import { useState } from 'react';
+import { useRecipes } from '../hooks/useRecipes';
 
 export default function ExploreScreen() {
-  const popularRecipes = [
-    {
-      id: 1,
-      title: 'Homemade Pizza',
-      time: '45 min',
-      difficulty: 'Medium',
-      image: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3',
-      tags: ['Italian', 'Dinner'],
-    },
-    {
-      id: 2,
-      title: 'Chicken Curry',
-      time: '30 min',
-      difficulty: 'Easy',
-      image: 'https://images.unsplash.com/photo-1603894584373-5ac82b2ae398?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3',
-      tags: ['Indian', 'Spicy'],
-    },
-    {
-      id: 3,
-      title: 'Avocado Toast',
-      time: '10 min',
-      difficulty: 'Easy',
-      image: 'https://images.unsplash.com/photo-1588137378633-dea1336ce1e2?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3',
-      tags: ['Breakfast', 'Vegetarian'],
-    },
-    {
-      id: 4,
-      title: 'Chocolate Cake',
-      time: '60 min',
-      difficulty: 'Medium',
-      image: 'https://images.unsplash.com/photo-1606313564200-e75d5e30476c?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3',
-      tags: ['Dessert', 'Baking'],
-    },
-  ];
+  const [activeTag, setActiveTag] = useState('All');
+  const { recipes, loading, error } = useRecipes();
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const tags = ['All', 'Veganas', 'Bajas en calorías', 'Alta en proteína', 'Fáciles y rápidas', 'Comida familiar y reconfortante'];
+
+  const filteredRecipes = recipes.filter(recipe => {
+    // Filter by search query
+    if (searchQuery && !recipe.nombre.toLowerCase().includes(searchQuery.toLowerCase())) {
+      return false;
+    }
+    
+    // Filter by tag
+    if (activeTag !== 'All' && !recipe.tipo.includes(activeTag)) {
+      return false;
+    }
+    
+    return true;
+  });
+
+  const getDifficultyFromTime = (time: number) => {
+    if (time < 30) return 'Easy';
+    if (time < 60) return 'Medium';
+    return 'Hard';
+  };
 
   return (
     <ScrollView style={styles.container}>
@@ -51,52 +44,76 @@ export default function ExploreScreen() {
             placeholder="Search recipes..." 
             style={styles.searchInput}
             placeholderTextColor="#666"
+            value={searchQuery}
+            onChangeText={setSearchQuery}
           />
         </View>
       </View>
 
       <View style={styles.tagsContainer}>
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-          {['All', 'Vegetarian', 'Vegan', 'Gluten-Free', 'Low-Carb', 'Keto', 'Quick'].map((tag) => (
+          {tags.map((tag) => (
             <TouchableOpacity 
               key={tag} 
-              style={[styles.tagButton, tag === 'All' && styles.activeTagButton]}
+              style={[styles.tagButton, tag === activeTag && styles.activeTagButton]}
+              onPress={() => setActiveTag(tag)}
             >
-              <Text style={[styles.tagText, tag === 'All' && styles.activeTagText]}>{tag}</Text>
+              <Text style={[styles.tagText, tag === activeTag && styles.activeTagText]}>{tag}</Text>
             </TouchableOpacity>
           ))}
         </ScrollView>
       </View>
 
-      <View style={styles.recipesGrid}>
-        {popularRecipes.map((recipe) => (
-          <Link key={recipe.id} href={`/recipe/${recipe.id}`} asChild>
-            <TouchableOpacity style={styles.recipeCard}>
-              <Image source={{ uri: recipe.image }} style={styles.recipeImage} />
-              <View style={styles.recipeInfo}>
-                <Text style={styles.recipeTitle}>{recipe.title}</Text>
-                <View style={styles.recipeMetaInfo}>
-                  <View style={styles.metaItem}>
-                    <Ionicons name="time-outline" size={14} color="#666" />
-                    <Text style={styles.metaText}>{recipe.time}</Text>
-                  </View>
-                  <View style={styles.metaItem}>
-                    <Ionicons name="speedometer-outline" size={14} color="#666" />
-                    <Text style={styles.metaText}>{recipe.difficulty}</Text>
-                  </View>
-                </View>
-                <View style={styles.tagsList}>
-                  {recipe.tags.map((tag) => (
-                    <View key={tag} style={styles.tagPill}>
-                      <Text style={styles.tagPillText}>{tag}</Text>
+      {loading ? (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#FF6B6B" />
+          <Text style={styles.loadingText}>Loading recipes...</Text>
+        </View>
+      ) : error ? (
+        <View style={styles.errorContainer}>
+          <Ionicons name="alert-circle-outline" size={48} color="#FF6B6B" />
+          <Text style={styles.errorText}>{error}</Text>
+          <TouchableOpacity style={styles.retryButton}>
+            <Text style={styles.retryButtonText}>Retry</Text>
+          </TouchableOpacity>
+        </View>
+      ) : filteredRecipes.length === 0 ? (
+        <View style={styles.emptyContainer}>
+          <Ionicons name="search-outline" size={48} color="#ccc" />
+          <Text style={styles.emptyText}>No recipes found</Text>
+          <Text style={styles.emptySubtext}>Try changing your search or filters</Text>
+        </View>
+      ) : (
+        <View style={styles.recipesGrid}>
+          {filteredRecipes.map((recipe) => (
+            <Link key={recipe.id} href={`/recipe/${recipe.id}`} asChild>
+              <TouchableOpacity style={styles.recipeCard}>
+                <Image source={{ uri: recipe.imageurl }} style={styles.recipeImage} />
+                <View style={styles.recipeInfo}>
+                  <Text style={styles.recipeTitle}>{recipe.nombre}</Text>
+                  <View style={styles.recipeMetaInfo}>
+                    <View style={styles.metaItem}>
+                      <Ionicons name="time-outline" size={14} color="#666" />
+                      <Text style={styles.metaText}>{recipe.tiempo} min</Text>
                     </View>
-                  ))}
+                    <View style={styles.metaItem}>
+                      <Ionicons name="speedometer-outline" size={14} color="#666" />
+                      <Text style={styles.metaText}>{getDifficultyFromTime(recipe.tiempo)}</Text>
+                    </View>
+                  </View>
+                  <View style={styles.tagsList}>
+                    {recipe.tipo.slice(0, 2).map((tag) => (
+                      <View key={tag} style={styles.tagPill}>
+                        <Text style={styles.tagPillText}>{tag}</Text>
+                      </View>
+                    ))}
+                  </View>
                 </View>
-              </View>
-            </TouchableOpacity>
-          </Link>
-        ))}
-      </View>
+              </TouchableOpacity>
+            </Link>
+          ))}
+        </View>
+      )}
     </ScrollView>
   );
 }
@@ -216,5 +233,54 @@ const styles = StyleSheet.create({
   tagPillText: {
     fontSize: 10,
     color: '#666',
+  },
+  loadingContainer: {
+    padding: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  loadingText: {
+    marginTop: 12,
+    fontSize: 16,
+    color: '#666',
+  },
+  errorContainer: {
+    padding: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  errorText: {
+    marginTop: 12,
+    fontSize: 16,
+    color: '#666',
+    textAlign: 'center',
+  },
+  retryButton: {
+    marginTop: 16,
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    backgroundColor: '#FF6B6B',
+    borderRadius: 8,
+  },
+  retryButtonText: {
+    color: '#fff',
+    fontWeight: '600',
+  },
+  emptyContainer: {
+    padding: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  emptyText: {
+    marginTop: 12,
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#333',
+  },
+  emptySubtext: {
+    marginTop: 8,
+    fontSize: 14,
+    color: '#666',
+    textAlign: 'center',
   },
 });

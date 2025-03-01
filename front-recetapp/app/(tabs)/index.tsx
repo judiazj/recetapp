@@ -1,70 +1,87 @@
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Link } from 'expo-router';
+import { useRecipes } from '../hooks/useRecipes';
 
 export default function MainScreen() {
-  const featuredRecipes = [
-    {
-      id: 1,
-      title: 'Homemade Pizza',
-      time: '45 min',
-      difficulty: 'Medium',
-      image: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3',
-    },
-    {
-      id: 2,
-      title: 'Chicken Curry',
-      time: '30 min',
-      difficulty: 'Easy',
-      image: 'https://images.unsplash.com/photo-1603894584373-5ac82b2ae398?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3',
-    },
-  ];
+  const { recipes, loading, error } = useRecipes();
+
+  const getDifficultyFromTime = (time: number) => {
+    if (time < 30) return 'Easy';
+    if (time < 60) return 'Medium';
+    return 'Hard';
+  };
+
+  // Group recipes by category
+  const categories = ['desayuno', 'almuerzo', 'cena', 'postre'];
+  const categoriesTranslated = {
+    'desayuno': 'Breakfast',
+    'almuerzo': 'Lunch',
+    'cena': 'Dinner',
+    'postre': 'Desserts'
+  };
 
   return (
     <ScrollView style={styles.container}>
       <View style={styles.searchContainer}>
-        <TouchableOpacity style={styles.searchBar}>
-          <Ionicons name="search" size={20} color="#666" />
-          <Text style={styles.searchText}>Search recipes...</Text>
-        </TouchableOpacity>
+        <Link href="/explore" asChild>
+          <TouchableOpacity style={styles.searchBar}>
+            <Ionicons name="search" size={20} color="#666" />
+            <Text style={styles.searchText}>Search recipes...</Text>
+          </TouchableOpacity>
+        </Link>
       </View>
 
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Featured Recipes</Text>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.recipesScroll}>
-          {featuredRecipes.map((recipe) => (
-            <Link key={recipe.id} href={`/recipe/${recipe.id}`} asChild>
-              <TouchableOpacity style={styles.recipeCard}>
-                <Image source={{ uri: recipe.image }} style={styles.recipeImage} />
-                <View style={styles.recipeInfo}>
-                  <Text style={styles.recipeTitle}>{recipe.title}</Text>
-                  <View style={styles.recipeMetaInfo}>
-                    <View style={styles.metaItem}>
-                      <Ionicons name="time-outline" size={16} color="#666" />
-                      <Text style={styles.metaText}>{recipe.time}</Text>
-                    </View>
-                    <View style={styles.metaItem}>
-                      <Ionicons name="speedometer-outline" size={16} color="#666" />
-                      <Text style={styles.metaText}>{recipe.difficulty}</Text>
-                    </View>
-                  </View>
-                </View>
-              </TouchableOpacity>
-            </Link>
-          ))}
-        </ScrollView>
-      </View>
-
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Categories</Text>
-        <View style={styles.categoriesGrid}>
-          {['Breakfast', 'Lunch', 'Dinner', 'Desserts'].map((category) => (
-            <TouchableOpacity key={category} style={styles.categoryCard}>
-              <Text style={styles.categoryText}>{category}</Text>
-            </TouchableOpacity>
-          ))}
+      {loading ? (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#FF6B6B" />
+          <Text style={styles.loadingText}>Loading recipes...</Text>
         </View>
-      </View>
+      ) : error ? (
+        <View style={styles.errorContainer}>
+          <Ionicons name="alert-circle-outline" size={48} color="#FF6B6B" />
+          <Text style={styles.errorText}>{error}</Text>
+        </View>
+      ) : (
+        <>
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Featured Recipes</Text>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.recipesScroll}>
+              {recipes.slice(0, 4).map((recipe) => (
+                <Link key={recipe.id} href={`/recipe/${recipe.id}`} asChild>
+                  <TouchableOpacity style={styles.recipeCard}>
+                    <Image source={{ uri: recipe.imageurl }} style={styles.recipeImage} />
+                    <View style={styles.recipeInfo}>
+                      <Text style={styles.recipeTitle}>{recipe.nombre}</Text>
+                      <View style={styles.recipeMetaInfo}>
+                        <View style={styles.metaItem}>
+                          <Ionicons name="time-outline" size={16} color="#666" />
+                          <Text style={styles.metaText}>{recipe.tiempo} min</Text>
+                        </View>
+                        <View style={styles.metaItem}>
+                          <Ionicons name="speedometer-outline" size={16} color="#666" />
+                          <Text style={styles.metaText}>{getDifficultyFromTime(recipe.tiempo)}</Text>
+                        </View>
+                      </View>
+                    </View>
+                  </TouchableOpacity>
+                </Link>
+              ))}
+            </ScrollView>
+          </View>
+
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Categories</Text>
+            <View style={styles.categoriesGrid}>
+              {categories.map((category) => (
+                <TouchableOpacity key={category} style={styles.categoryCard}>
+                  <Text style={styles.categoryText}>{categoriesTranslated[category] || category}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
+        </>
+      )}
     </ScrollView>
   );
 }
@@ -163,5 +180,26 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '500',
     color: '#333',
+  },
+  loadingContainer: {
+    padding: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  loadingText: {
+    marginTop: 12,
+    fontSize: 16,
+    color: '#666',
+  },
+  errorContainer: {
+    padding: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  errorText: {
+    marginTop: 12,
+    fontSize: 16,
+    color: '#666',
+    textAlign: 'center',
   },
 });

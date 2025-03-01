@@ -1,34 +1,35 @@
-import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Link } from 'expo-router';
+import { useRecipes } from '../hooks/useRecipes';
+import { useState, useEffect } from 'react';
+import { Recipe } from '../services/api';
 
 export default function HistoryScreen() {
-  const history = [
-    {
-      id: '1',
-      title: 'Spaghetti Carbonara',
-      date: '2024-02-20',
-      status: 'completed',
-    },
-    {
-      id: '2',
-      title: 'Chicken Stir Fry',
-      date: '2024-02-19',
-      status: 'saved',
-    },
-    {
-      id: '3',
-      title: 'Homemade Pizza',
-      date: '2024-02-18',
-      status: 'completed',
-    },
-    {
-      id: '4',
-      title: 'Chocolate Cake',
-      date: '2024-02-15',
-      status: 'saved',
-    },
-  ];
+  const { recipes, loading, error } = useRecipes();
+  const [history, setHistory] = useState<Array<{id: string; title: string; date: string; status: string}>>([]);
+
+  useEffect(() => {
+    if (recipes.length > 0) {
+      // Simulate history by taking a few random recipes
+      const randomRecipes = [...recipes]
+        .sort(() => 0.5 - Math.random())
+        .slice(0, 4)
+        .map((recipe, index) => {
+          const date = new Date();
+          date.setDate(date.getDate() - index);
+          
+          return {
+            id: recipe.id,
+            title: recipe.nombre,
+            date: date.toISOString().split('T')[0],
+            status: index % 2 === 0 ? 'completed' : 'saved'
+          };
+        });
+      
+      setHistory(randomRecipes);
+    }
+  }, [recipes]);
 
   return (
     <View style={styles.container}>
@@ -36,29 +37,47 @@ export default function HistoryScreen() {
         <Text style={styles.headerTitle}>Cooking History</Text>
       </View>
       
-      <FlatList
-        data={history}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <Link href={`/recipe/${item.id}`} asChild>
-            <TouchableOpacity style={styles.historyItem}>
-              <View style={styles.iconContainer}>
-                <Ionicons
-                  name={item.status === 'completed' ? 'checkmark-circle' : 'bookmark'}
-                  size={24}
-                  color="#FF6B6B"
-                />
-              </View>
-              <View style={styles.itemContent}>
-                <Text style={styles.itemTitle}>{item.title}</Text>
-                <Text style={styles.itemDate}>{item.date}</Text>
-              </View>
-              <Ionicons name="chevron-forward" size={24} color="#ccc" />
-            </TouchableOpacity>
-          </Link>
-        )}
-        ItemSeparatorComponent={() => <View style={styles.separator} />}
-      />
+      {loading ? (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#FF6B6B" />
+          <Text style={styles.loadingText}>Loading history...</Text>
+        </View>
+      ) : error ? (
+        <View style={styles.errorContainer}>
+          <Ionicons name="alert-circle-outline" size={48} color="#FF6B6B" />
+          <Text style={styles.errorText}>{error}</Text>
+        </View>
+      ) : history.length === 0 ? (
+        <View style={styles.emptyContainer}>
+          <Ionicons name="time-outline" size={48} color="#ccc" />
+          <Text style={styles.emptyText}>No cooking history yet</Text>
+          <Text style={styles.emptySubtext}>Your cooking adventures will appear here</Text>
+        </View>
+      ) : (
+        <FlatList
+          data={history}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => (
+            <Link href={`/recipe/${item.id}`} asChild>
+              <TouchableOpacity style={styles.historyItem}>
+                <View style={styles.iconContainer}>
+                  <Ionicons
+                    name={item.status === 'completed' ? 'checkmark-circle' : 'bookmark'}
+                    size={24}
+                    color="#FF6B6B"
+                  />
+                </View>
+                <View style={styles.itemContent}>
+                  <Text style={styles.itemTitle}>{item.title}</Text>
+                  <Text style={styles.itemDate}>{item.date}</Text>
+                </View>
+                <Ionicons name="chevron-forward" size={24} color="#ccc" />
+              </TouchableOpacity>
+            </Link>
+          )}
+          ItemSeparatorComponent={() => <View style={styles.separator} />}
+        />
+      )}
     </View>
   );
 }
@@ -112,5 +131,46 @@ const styles = StyleSheet.create({
     height: 1,
     backgroundColor: '#f0f0f0',
     marginLeft: 68,
+  },
+  loadingContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 20,
+  },
+  loadingText: {
+    marginTop: 12,
+    fontSize: 16,
+    color: '#666',
+  },
+  errorContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 20,
+  },
+  errorText: {
+    marginTop: 12,
+    fontSize: 16,
+    color: '#666',
+    textAlign: 'center',
+  },
+  emptyContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 20,
+  },
+  emptyText: {
+    marginTop: 12,
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#333',
+  },
+  emptySubtext: {
+    marginTop: 8,
+    fontSize: 14,
+    color: '#666',
+    textAlign: 'center',
   },
 });

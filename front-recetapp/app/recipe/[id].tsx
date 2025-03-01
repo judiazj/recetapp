@@ -1,147 +1,67 @@
-import { useState } from 'react';
-import { View, Text, StyleSheet, Image, ScrollView, TouchableOpacity, Dimensions } from 'react-native';
+import { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, Image, ScrollView, TouchableOpacity, Dimensions, ActivityIndicator } from 'react-native';
 import { useLocalSearchParams, Stack, router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { fetchRecipeById, Recipe } from '../services/api';
 
 const { width } = Dimensions.get('window');
 
 export default function RecipeScreen() {
   const { id } = useLocalSearchParams();
   const [activeTab, setActiveTab] = useState('ingredients');
+  const [recipe, setRecipe] = useState<Recipe | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   
-  // Mock data - in a real app, you would fetch this based on the ID
-  const recipes = {
-    '1': {
-      title: 'Homemade Pizza',
-      image: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3',
-      time: '45 min',
-      servings: '4',
-      difficulty: 'Medium',
-      description: 'A delicious homemade pizza with a crispy crust and your favorite toppings.',
-      ingredients: [
-        '2 1/2 cups all-purpose flour',
-        '1 teaspoon salt',
-        '1 teaspoon sugar',
-        '1 tablespoon active dry yeast',
-        '1 cup warm water',
-        '2 tablespoons olive oil',
-        '1/2 cup pizza sauce',
-        '2 cups shredded mozzarella cheese',
-        'Toppings of your choice'
-      ],
-      instructions: [
-        'In a large bowl, combine flour, salt, sugar, and yeast.',
-        'Add warm water and olive oil, then mix until a dough forms.',
-        'Knead the dough on a floured surface for about 5 minutes.',
-        'Place in a greased bowl, cover, and let rise for 30 minutes.',
-        'Preheat oven to 450°F (230°C).',
-        'Roll out the dough on a floured surface to your desired thickness.',
-        'Transfer to a pizza pan or baking sheet.',
-        'Spread pizza sauce over the dough, leaving a small border.',
-        'Sprinkle with cheese and add your favorite toppings.',
-        'Bake for 12-15 minutes or until crust is golden and cheese is bubbly.',
-        'Let cool for a few minutes before slicing and serving.'
-      ],
-      tags: ['Italian', 'Dinner', 'Family Friendly']
-    },
-    '2': {
-      title: 'Chicken Curry',
-      image: 'https://images.unsplash.com/photo-1603894584373-5ac82b2ae398?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3',
-      time: '30 min',
-      servings: '4',
-      difficulty: 'Easy',
-      description: 'A flavorful and aromatic chicken curry thats perfect for a weeknight dinner.',
-      ingredients: [
-        '1 lb boneless chicken, cut into pieces',
-        '2 tablespoons vegetable oil',
-        '1 onion, finely chopped',
-        '2 cloves garlic, minced',
-        '1 tablespoon ginger, grated',
-        '2 tablespoons curry powder',
-        '1 teaspoon turmeric',
-        '1 can (14 oz) coconut milk',
-        'Salt and pepper to taste',
-        'Fresh cilantro for garnish'
-      ],
-      instructions: [
-        'Heat oil in a large pan over medium heat.',
-        'Add onions and cook until soft and translucent, about 5 minutes.',
-        'Add garlic and ginger, cook for another minute.',
-        'Add curry powder and turmeric, stir for 30 seconds until fragrant.',
-        'Add chicken pieces and cook until they start to brown, about 5 minutes.',
-        'Pour in coconut milk, bring to a simmer.',
-        'Reduce heat and cook for 15-20 minutes until chicken is cooked through.',
-        'Season with salt and pepper to taste.',
-        'Garnish with fresh cilantro before serving.',
-        'Serve with rice or naan bread.'
-      ],
-      tags: ['Indian', 'Spicy', 'Dinner']
-    },
-    '3': {
-      title: 'Avocado Toast',
-      image: 'https://images.unsplash.com/photo-1588137378633-dea1336ce1e2?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3',
-      time: '10 min',
-      servings: '2',
-      difficulty: 'Easy',
-      description: 'A simple and nutritious breakfast thats ready in minutes.',
-      ingredients: [
-        '2 slices of whole grain bread',
-        '1 ripe avocado',
-        '1 tablespoon lemon juice',
-        'Salt and pepper to taste',
-        'Red pepper flakes (optional)',
-        '2 eggs (optional)'
-      ],
-      instructions: [
-        'Toast the bread slices until golden and crisp.',
-        'Cut the avocado in half, remove the pit, and scoop the flesh into a bowl.',
-        'Add lemon juice, salt, and pepper to the avocado and mash with a fork.',
-        'Spread the mashed avocado evenly over the toast.',
-        'If desired, top with a fried or poached egg.',
-        'Sprinkle with red pepper flakes if you like a bit of heat.',
-        'Serve immediately and enjoy!'
-      ],
-      tags: ['Breakfast', 'Vegetarian', 'Quick']
-    },
-    '4': {
-      title: 'Chocolate Cake',
-      image: 'https://images.unsplash.com/photo-1606313564200-e75d5e30476c?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3',
-      time: '60 min',
-      servings: '8',
-      difficulty: 'Medium',
-      description: 'A rich and moist chocolate cake thats perfect for any celebration.',
-      ingredients: [
-        '2 cups all-purpose flour',
-        '2 cups sugar',
-        '3/4 cup unsweetened cocoa powder',
-        '2 teaspoons baking soda',
-        '1 teaspoon salt',
-        '2 eggs',
-        '1 cup buttermilk',
-        '1/2 cup vegetable oil',
-        '2 teaspoons vanilla extract',
-        '1 cup hot coffee'
-      ],
-      instructions: [
-        'Preheat oven to 350°F (175°C). Grease and flour two 9-inch round cake pans.',
-        'In a large bowl, combine flour, sugar, cocoa, baking soda, and salt.',
-        'Add eggs, buttermilk, oil, and vanilla; beat on medium speed for 2 minutes.',
-        'Stir in hot coffee (batter will be thin). Pour into prepared pans.',
-        'Bake for 30-35 minutes or until a toothpick inserted in center comes out clean.',
-        'Cool for 10 minutes; remove from pans to wire racks to cool completely.',
-        'Frost with your favorite chocolate frosting.',
-        'Store in the refrigerator until ready to serve.'
-      ],
-      tags: ['Dessert', 'Baking', 'Celebration']
-    }
+  useEffect(() => {
+    const loadRecipe = async () => {
+      try {
+        setLoading(true);
+        if (typeof id !== 'string') {
+          throw new Error('Invalid recipe ID');
+        }
+        
+        const data = await fetchRecipeById(id);
+        if (!data) {
+          throw new Error('Recipe not found');
+        }
+        
+        setRecipe(data);
+        setError(null);
+      } catch (err) {
+        setError('Failed to load recipe');
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadRecipe();
+  }, [id]);
+
+  const getDifficultyFromTime = (time: number) => {
+    if (time < 30) return 'Easy';
+    if (time < 60) return 'Medium';
+    return 'Hard';
   };
-  
-  const recipe = recipes[id as keyof typeof recipes];
-  
-  if (!recipe) {
+
+  if (loading) {
     return (
-      <View style={styles.container}>
-        <Text>Recipe not found</Text>
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#FF6B6B" />
+        <Text style={styles.loadingText}>Loading recipe...</Text>
+      </View>
+    );
+  }
+
+  if (error || !recipe) {
+    return (
+      <View style={styles.errorContainer}>
+        <Ionicons name="alert-circle-outline" size={48} color="#FF6B6B" />
+        <Text style={styles.errorText}>{error || 'Recipe not found'}</Text>
+        <TouchableOpacity style={styles.backToHomeButton} onPress={() => router.back()}>
+          <Text style={styles.backToHomeText}>Go Back</Text>
+        </TouchableOpacity>
       </View>
     );
   }
@@ -151,7 +71,7 @@ export default function RecipeScreen() {
       <Stack.Screen options={{ headerShown: false }} />
       <ScrollView style={styles.container}>
         <View style={styles.imageContainer}>
-          <Image source={{ uri: recipe.image }} style={styles.image} />
+          <Image source={{ uri: recipe.imageurl }} style={styles.image} />
           <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
             <Ionicons name="arrow-back" size={24} color="#fff" />
           </TouchableOpacity>
@@ -161,32 +81,34 @@ export default function RecipeScreen() {
         </View>
         
         <View style={styles.contentContainer}>
-          <Text style={styles.title}>{recipe.title}</Text>
+          <Text style={styles.title}>{recipe.nombre}</Text>
           
           <View style={styles.metaContainer}>
             <View style={styles.metaItem}>
               <Ionicons name="time-outline" size={20} color="#FF6B6B" />
-              <Text style={styles.metaText}>{recipe.time}</Text>
+              <Text style={styles.metaText}>{recipe.tiempo} min</Text>
             </View>
             <View style={styles.metaItem}>
               <Ionicons name="people-outline" size={20} color="#FF6B6B" />
-              <Text style={styles.metaText}>{recipe.servings} servings</Text>
+              <Text style={styles.metaText}>4 servings</Text>
             </View>
             <View style={styles.metaItem}>
               <Ionicons name="speedometer-outline" size={20} color="#FF6B6B" />
-              <Text style={styles.metaText}>{recipe.difficulty}</Text>
+              <Text style={styles.metaText}>{getDifficultyFromTime(recipe.tiempo)}</Text>
             </View>
           </View>
           
           <View style={styles.tagsContainer}>
-            {recipe.tags.map((tag) => (
+            {recipe.tipo.map((tag) => (
               <View key={tag} style={styles.tag}>
                 <Text style={styles.tagText}>{tag}</Text>
               </View>
             ))}
           </View>
           
-          <Text style={styles.description}>{recipe.description}</Text>
+          <Text style={styles.description}>
+            A delicious {recipe.nombre.toLowerCase()} recipe that's perfect for {recipe.categoria}.
+          </Text>
           
           <View style={styles.tabsContainer}>
             <TouchableOpacity 
@@ -209,21 +131,26 @@ export default function RecipeScreen() {
           
           {activeTab === 'ingredients' ? (
             <View style={styles.ingredientsContainer}>
-              {recipe.ingredients.map((ingredient, index) => (
+              {recipe.ingredientes.map((ingredient, index) => (
                 <View key={index} style={styles.ingredientItem}>
                   <View style={styles.bullet} />
-                  <Text style={styles.ingredientText}>{ingredient}</Text>
+                  <Text style={styles.ingredientText}>
+                    {ingredient.nombre} - {ingredient.cantidad} {ingredient.unidad}
+                  </Text>
                 </View>
               ))}
             </View>
           ) : (
             <View style={styles.instructionsContainer}>
-              {recipe.instructions.map((instruction, index) => (
+              {recipe.pasos.map((step, index) => (
                 <View key={index} style={styles.instructionItem}>
                   <View style={styles.instructionNumber}>
                     <Text style={styles.instructionNumberText}>{index + 1}</Text>
                   </View>
-                  <Text style={styles.instructionText}>{instruction}</Text>
+                  <View style={styles.instructionContent}>
+                    <Text style={styles.instructionText}>{step.descripcion}</Text>
+                    <Text style={styles.instructionTime}>{step.duracion} min</Text>
+                  </View>
                 </View>
               ))}
             </View>
@@ -238,6 +165,41 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
+  },
+  loadingContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#fff',
+  },
+  loadingText: {
+    marginTop: 12,
+    fontSize: 16,
+    color: '#666',
+  },
+  errorContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#fff',
+    padding: 20,
+  },
+  errorText: {
+    marginTop: 12,
+    fontSize: 16,
+    color: '#666',
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+  backToHomeButton: {
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    backgroundColor: '#FF6B6B',
+    borderRadius: 8,
+  },
+  backToHomeText: {
+    color: '#fff',
+    fontWeight: '600',
   },
   imageContainer: {
     width: '100%',
@@ -380,10 +342,17 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontWeight: 'bold',
   },
+  instructionContent: {
+    flex: 1,
+  },
   instructionText: {
     fontSize: 16,
     color: '#333',
-    flex: 1,
     lineHeight: 24,
+  },
+  instructionTime: {
+    fontSize: 14,
+    color: '#666',
+    marginTop: 4,
   },
 });
