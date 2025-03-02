@@ -8,6 +8,8 @@ export default function TabLayout() {
       screenOptions={{
         headerShown: true,
         tabBarShowLabel: true,
+        tabBarLabelPosition: 'below-icon',
+        tabBarHideOnKeyboard: true,
         tabBarStyle: {
           position: 'sticky',
           bottom: 20,

@@ -6,7 +6,9 @@ type Preference = {
   label: string;
 };
 
-export default function PreferenceList() {
+
+
+export default function PreferenceList({onPreferencesChange}: {onPreferencesChange: (preferences: string[]) => void}) {
   const [preferences, setPreferences] = useState<Preference[]>([
     { label: "Ganar músculo" },
     { label: "Familiar" },
@@ -18,8 +20,7 @@ export default function PreferenceList() {
   const [selected, setSelected] = useState<string[]>([]);
 
   useEffect(() => {
-    
-    console.log("Preferences:", selected);
+    onPreferencesChange(selected);
   }, [selected]);
 
   const togglePreference = (id: string) => {

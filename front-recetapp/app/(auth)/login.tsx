@@ -42,7 +42,7 @@ export default function LoginScreen() {
         return;
       }
 
-      router.replace('../profile');
+      router.replace('/preferences');
 
       // TODO: Save token in AsyncStorage or SecureStore
     } catch (error) {

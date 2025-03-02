@@ -48,7 +48,7 @@ export default function RecipeScreen() {
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#FF6B6B" />
+        <ActivityIndicator size="large" color="#09565B" />
         <Text style={styles.loadingText}>Loading recipe...</Text>
       </View>
     );
@@ -57,7 +57,7 @@ export default function RecipeScreen() {
   if (error || !recipe) {
     return (
       <View style={styles.errorContainer}>
-        <Ionicons name="alert-circle-outline" size={48} color="#FF6B6B" />
+        <Ionicons name="alert-circle-outline" size={48} color="#09565B" />
         <Text style={styles.errorText}>{error || 'Recipe not found'}</Text>
         <TouchableOpacity style={styles.backToHomeButton} onPress={() => router.back()}>
           <Text style={styles.backToHomeText}>Go Back</Text>
@@ -85,15 +85,15 @@ export default function RecipeScreen() {
           
           <View style={styles.metaContainer}>
             <View style={styles.metaItem}>
-              <Ionicons name="time-outline" size={20} color="#FF6B6B" />
+              <Ionicons name="time-outline" size={20} color="#09565B" />
               <Text style={styles.metaText}>{recipe.tiempo} min</Text>
             </View>
             <View style={styles.metaItem}>
-              <Ionicons name="people-outline" size={20} color="#FF6B6B" />
+              <Ionicons name="people-outline" size={20} color="#09565B" />
               <Text style={styles.metaText}>4 servings</Text>
             </View>
             <View style={styles.metaItem}>
-              <Ionicons name="speedometer-outline" size={20} color="#FF6B6B" />
+              <Ionicons name="speedometer-outline" size={20} color="#09565B" />
               <Text style={styles.metaText}>{getDifficultyFromTime(recipe.tiempo)}</Text>
             </View>
           </View>
@@ -194,7 +194,7 @@ const styles = StyleSheet.create({
   backToHomeButton: {
     paddingHorizontal: 20,
     paddingVertical: 10,
-    backgroundColor: '#FF6B6B',
+    backgroundColor: '#09565B',
     borderRadius: 8,
   },
   backToHomeText: {
@@ -294,7 +294,7 @@ const styles = StyleSheet.create({
   },
   activeTab: {
     borderBottomWidth: 2,
-    borderBottomColor: '#FF6B6B',
+    borderBottomColor: '#09565B',
   },
   tabText: {
     fontSize: 16,
@@ -302,7 +302,7 @@ const styles = StyleSheet.create({
     color: '#999',
   },
   activeTabText: {
-    color: '#FF6B6B',
+    color: '#09565B',
   },
   ingredientsContainer: {
     gap: 12,
@@ -316,7 +316,7 @@ const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: '#FF6B6B',
+    backgroundColor: '#09565B',
   },
   ingredientText: {
     fontSize: 16,
@@ -334,7 +334,7 @@ const styles = StyleSheet.create({
     width: 30,
     height: 30,
     borderRadius: 15,
-    backgroundColor: '#FF6B6B',
+    backgroundColor: '#09565B',
     alignItems: 'center',
     justifyContent: 'center',
   },
