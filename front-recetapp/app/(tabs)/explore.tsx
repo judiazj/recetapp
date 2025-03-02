@@ -66,12 +66,12 @@ export default function ExploreScreen() {
 
       {loading ? (
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#FF6B6B" />
+          <ActivityIndicator size="large" color="#09565B" />
           <Text style={styles.loadingText}>Loading recipes...</Text>
         </View>
       ) : error ? (
         <View style={styles.errorContainer}>
-          <Ionicons name="alert-circle-outline" size={48} color="#FF6B6B" />
+          <Ionicons name="alert-circle-outline" size={48} color="#09565B" />
           <Text style={styles.errorText}>{error}</Text>
           <TouchableOpacity style={styles.retryButton}>
             <Text style={styles.retryButtonText}>Retry</Text>
@@ -164,7 +164,7 @@ const styles = StyleSheet.create({
     marginRight: 8,
   },
   activeTagButton: {
-    backgroundColor: '#FF6B6B',
+    backgroundColor: '#09565B',
   },
   tagText: {
     color: '#666',
@@ -259,7 +259,7 @@ const styles = StyleSheet.create({
     marginTop: 16,
     paddingHorizontal: 20,
     paddingVertical: 10,
-    backgroundColor: '#FF6B6B',
+    backgroundColor: '#09565B',
     borderRadius: 8,
   },
   retryButtonText: {

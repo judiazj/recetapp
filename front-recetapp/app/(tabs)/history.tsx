@@ -39,12 +39,12 @@ export default function HistoryScreen() {
       
       {loading ? (
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#FF6B6B" />
+          <ActivityIndicator size="large" color="#09565B" />
           <Text style={styles.loadingText}>Loading history...</Text>
         </View>
       ) : error ? (
         <View style={styles.errorContainer}>
-          <Ionicons name="alert-circle-outline" size={48} color="#FF6B6B" />
+          <Ionicons name="alert-circle-outline" size={48} color="#09565B" />
           <Text style={styles.errorText}>{error}</Text>
         </View>
       ) : history.length === 0 ? (
@@ -64,7 +64,7 @@ export default function HistoryScreen() {
                   <Ionicons
                     name={item.status === 'completed' ? 'checkmark-circle' : 'bookmark'}
                     size={24}
-                    color="#FF6B6B"
+                    color="#09565B"
                   />
                 </View>
                 <View style={styles.itemContent}>

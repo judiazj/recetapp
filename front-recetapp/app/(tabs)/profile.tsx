@@ -166,7 +166,7 @@ const styles = StyleSheet.create({
   editButton: {
     paddingHorizontal: 20,
     paddingVertical: 10,
-    backgroundColor: '#FF6B6B',
+    backgroundColor: '#09565B',
     borderRadius: 20,
   },
   editButtonText: {
@@ -229,7 +229,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   selectedTagButton: {
-    backgroundColor: '#FF6B6B',
+    backgroundColor: '#09565B',
   },
   tagText: {
     fontSize: 14,
